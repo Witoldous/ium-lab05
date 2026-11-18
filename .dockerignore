@@ -1,0 +1,18 @@
+# Zadanie 5: pliki spoza obrazu (wyłączone z kontekstu budowania)
+# lokalne środowisko i repozytorium
+.venv/
+.git/
+__pycache__/
+*.pyc
+.pytest_cache/
+# dane i modele trafiają do kontenera przez wolumeny
+data/
+models/
+# konfiguracja podawana przy uruchomieniu (env_file), nie przy budowaniu
+.env
+.env.train
+.env.visualize
+# osobna usługa i pliki niepotrzebne w obrazie
+visualize/
+docker-compose.yml
+README.md
