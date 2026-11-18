@@ -1,10 +1,24 @@
-# Zadanie 2: usługa treningowa z obrazu z zadania 1
+# Zadania 2, 4: usługa treningowa + serwer HTTP z wynikami
 services:
   train:
     build: .                        # Dockerfile z zadania 1
     image: ium-lab05-train
     command: ["python", "src/pipeline.py"]   # wszystkie etapy zamiast samego train.py
     env_file: .env.train            # hiperparametry i ścieżki tylko dla tej usługi
+    environment:
+      - N_JOBS=2                    # nadpisuje wartość z .env.train
     volumes:
       - ./models:/app/models        # model i wyniki zostają na hoście
       - ./data:/app/data:ro         # dane tylko do odczytu
+    mem_limit: 512m                 # zadanie 4: limit pamięci
+    cpus: 1.5                       # i maks. 1,5 rdzenia
+
+  visualize:
+    build: ./visualize
+    image: ium-lab05-visualize
+    ports:
+      - "8080:8080"                 # jedyny port wystawiony na hosta
+    volumes:
+      - ./models:/srv/models:ro     # ten sam katalog co w train, tylko odczyt
+    depends_on:
+      - train                       # start dopiero po uruchomieniu train
