@@ -16,7 +16,7 @@ ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONUNBUFFERED=1
 WORKDIR /app
 # Tylko to, co potrzebne do uruchomienia pipeline'u i testów
-COPY src/data_prep.py src/train.py src/evaluate.py src/
+COPY src/data_prep.py src/train.py src/evaluate.py src/pipeline.py src/
 COPY .env.example pytest.ini ./
 COPY tests/ tests/
 CMD ["python", "src/train.py"]

@@ -1,0 +1,10 @@
+# Zadanie 2: usługa treningowa z obrazu z zadania 1
+services:
+  train:
+    build: .                        # Dockerfile z zadania 1
+    image: ium-lab05-train
+    command: ["python", "src/pipeline.py"]   # wszystkie etapy zamiast samego train.py
+    env_file: .env.train            # hiperparametry i ścieżki tylko dla tej usługi
+    volumes:
+      - ./models:/app/models        # model i wyniki zostają na hoście
+      - ./data:/app/data:ro         # dane tylko do odczytu
