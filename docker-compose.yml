@@ -1,4 +1,4 @@
-# Zadania 2, 4: usługa treningowa + serwer HTTP z wynikami
+# Lab 5: pipeline ML z lab. 3 (train) + serwer HTTP z wynikami (visualize)
 services:
   train:
     build: .                        # Dockerfile z zadania 1
@@ -7,6 +7,8 @@ services:
     env_file: .env.train            # hiperparametry i ścieżki tylko dla tej usługi
     environment:
       - N_JOBS=2                    # nadpisuje wartość z .env.train
+    expose:
+      - "5000"                      # /status tylko w sieci compose, bez portu na hoście
     volumes:
       - ./models:/app/models        # model i wyniki zostają na hoście
       - ./data:/app/data:ro         # dane tylko do odczytu
@@ -16,9 +18,10 @@ services:
   visualize:
     build: ./visualize
     image: ium-lab05-visualize
+    env_file: .env.visualize        # osobna konfiguracja (adres train, katalog wyników)
     ports:
       - "8080:8080"                 # jedyny port wystawiony na hosta
     volumes:
       - ./models:/srv/models:ro     # ten sam katalog co w train, tylko odczyt
     depends_on:
-      - train                       # start dopiero po uruchomieniu train
+      - train                       # start dopiero po uruchomieniu kontenera train

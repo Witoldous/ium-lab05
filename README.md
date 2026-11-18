@@ -1,23 +1,24 @@
-# IUM – Lab 3: strukturyzacja pipeline'u pod CI
+# IUM – Lab 5: konteneryzacja pipeline'u ML
 
-Pipeline z lab. 2 (zbiór wine, Pipeline `StandardScaler` + `LogisticRegression`) rozbity na niezależne moduły.
+Pipeline z lab. 3 (zbiór wine, `StandardScaler` + `LogisticRegression`) w kontenerze, uruchamiany
+przez Docker Compose razem z drugą usługą, która serwuje wyniki treningu.
 
 ```
-src/data_prep.py   # wczytanie i podział danych (python src/data_prep.py zapisuje data/wine.csv)
-src/train.py       # trening i zapis modelu do models/model.joblib
-src/evaluate.py    # ewaluacja zapisanego modelu, wynik w wyniki.txt
-tests/             # testy pytest dla data_prep.py
-.env.example       # klucze konfiguracji (skopiuj do .env i uzupełnij)
+Dockerfile           # obraz train: python:3.11-slim, zależności przez uv (multi-stage)
+docker-compose.yml   # usługi train i visualize, wolumeny, limity, depends_on
+.env.train           # konfiguracja usługi train (env_file)
+.env.visualize       # konfiguracja usługi visualize (env_file)
+.dockerignore        # .venv, .git, data/, models/ poza kontekstem budowania
+src/pipeline.py      # data_prep -> train -> evaluate + endpoint /status na porcie 5000
+src/data_prep.py, src/train.py, src/evaluate.py   # moduły z lab. 3
+visualize/           # serwer HTTP z katalogiem models/, przy starcie sprawdza http://train:5000/status
 ```
-
-## Uruchomienie (z katalogu głównego projektu)
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env               # i uzupełnij wartości
-python src/data_prep.py
-python src/train.py
-python src/evaluate.py
-pytest
+docker build -t ium-lab05-train .            # sam obraz (zad. 1)
+docker compose up --build                    # trening + serwer wyników
+open http://localhost:8080                   # models/model.joblib, models/wyniki.txt
+docker stats                                 # limit 512 MiB i 1,5 CPU usługi train
+docker compose run --rm --no-deps train pytest -q
+docker compose down
 ```
